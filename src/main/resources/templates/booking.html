@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="/style2.css">
+    <style>
+     
+  #previousLink {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color:#007BFF; 
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    position: absolute;
+    left: 10px; 
+    bottom: 10px;
+}
+    </style>
+  </head>
+  <body>
+      <h2>Available Services</h2>
+  <div th:if="${#lists.isEmpty(availablities)}">
+    <p>There are no available services right now</p>
+  </div>
+  <div th:if="${!#lists.isEmpty(availablities)}">
+    <table>
+      <thead>
+        <tr>
+          <th>Service Id</th>
+          <th>Service </th>
+          <th> Service Provider</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="available : ${availablities}">
+          <td th:text="${available.service.id}">Service Id</td>
+          <td th:text="${available.service.name}">Service </td>
+          <td th:text="${available.serviceProvider.username}"> Service Provider</td>
+          <td th:text="${available.start_time}">Start Time</td>
+          <td th:text="${available.end_time}">End Time</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+
+  <h2>Book Appointment</h2>
+  <form action="/user/appointment/bookingAppointment" method="post">
+    <input type="text" name="user.id" placeholder="Your Id" required>
+    <input type="text" name="service.id" placeholder="Service Id" required>
+    <input type="datetime-local" name="appointment_time" placeholder="Appointment Time" required>
+    <select name="status" required> 
+      <option value=" pending">Pending</option>
+      <option value=" confirmed">Confirmed</option>
+      <option value=" cancelled">Cancelled</option>
+      
+    </select>
+    <button type="submit">Book</button>
+  </form>
+
+  <div th:if="${error}" th:text="${error}" id="error"> </div>
+  <div th:if="${success}" th:text="${success}" id="success"> </div>
+
+<a th:href="@{/previous/backToUserPage}" id="previousLink">Previous</a>
+  
+  </body>
+</html>

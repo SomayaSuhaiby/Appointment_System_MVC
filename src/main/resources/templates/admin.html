@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>title</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+   
+
+  #previousLink {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color:#007BFF; 
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    position: absolute;
+    left: 10px; 
+    bottom: 10px;
+}
+  </style>
+</head>
+
+<body>
+
+  <!-- Create a Service -->
+ <form>
+  <p>To Create a new Service click <a th:href="@{/services/create}">here</a></p>
+   
+ </form>
+
+ <!-- Get all services -->
+  <form class="form" method="get" th:action="@{/services/getServices}">
+     <h4>To get your services, insert Your Id</h4>
+    <input type="text" name="providerId" placeholder="User Id" required>
+    <button type="submit">Get Services</button>
+  </form>
+  
+   
+<!--  Get all  Available Services for a specific service provider(user) -->
+   <form th:action="@{/availability/listForServiceProvider}" method="get">
+    <button type="submit">Get Available Services</button>
+   </form>
+<!-- Get all appointment to Update status(confirmed, cancelled) of any appointment -->
+    <form th:action="@{/user/appointment/getAppByAdmin}" method="get">
+    <button type="submit">Get all Appointments</button>
+   </form>
+
+   <!-- Delete a specific service -->
+  <form th:action="@{/services/delete}" method="post">
+    <input type="text" name="serviceId" placeholder=" Enter Service Id" required>
+    <button type="submit">Delete a Service</button>
+      <p th:if="${error}" th:text="${error}" id="error"></p>
+    <p th:if="${success}" th:text="${success}" id="success"></p>
+
+  </form>
+
+   <!-- back to login page -->
+ <a th:href="@{/previous/backToLoginPage}" id="previousLink">Previous</a>
+</body>
+
+</html>

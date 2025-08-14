@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="/style2.css">
+    <style>
+       #previousLink {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color:#007BFF; 
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+   
+}
+    </style>
+</head>
+  <body>
+    <!-- Display all Appointments -->
+       
+  <h2>Available Services</h2>
+  <div th:if="${#lists.isEmpty(appointments)}">
+    <p>There are no available appointments right now</p>
+  </div>
+  <div th:if="${!#lists.isEmpty(appointments)}">
+    <table>
+      <thead>
+        <tr>
+          <th>Appointment Id</th>
+          <th>User ID</th>
+          <th> Service Name</th>
+          <th>Appointment Time</th>
+          <th>Appointment Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="appointment : ${appointments}">
+          <td th:text="${appointment.id}">Appointment Id</td>
+          <td th:text="${appointment.user.id}">User ID</td>
+          <td th:text="${appointment.service.name}"> Service Name</td>
+          <td th:text="${appointment.appointment_time}">Appointment Time</td>
+          <td th:text="${appointment.status}">Appointment StatuA</td>
+          
+        </tr>
+
+      </tbody>
+    </table>
+  </div><br>
+
+  <!-- Update status -->
+<form th:action="@{/user/appointment/update}" method="post">
+  <input name="id" placeholder="Appointment Id" required>
+  <select name="status">
+    <option value="">--Select Status--</option>
+    <option value="confirmed">confirmed</option>
+    <option value="cancelled">cancelled</option>
+  </select>
+   <button type="submit">Update status</button>
+</form>
+
+<!-- show message ( error or success) -->
+ <div th:if="${error}" th:text="${error}" id="error"> </div>
+  <div th:if="${success}" th:text="${success}" id="success"> </div><br><br>
+  
+ <a th:href="@{/previous/backToUserPage}" id="previousLink"> Previous</a>
+  </body>
+</html>
