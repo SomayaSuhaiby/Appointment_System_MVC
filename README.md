@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # 🗓 Appointment System
+=======
+#  Appointment System
+>>>>>>> 265e6bf (update readme.md)
 
 A Spring Boot web application for managing users, services, availability, and appointments. This system supports user registration/login, service creation, availability listings, and a complete appointment booking workflow with admin approval.
 
@@ -68,7 +72,7 @@ A Spring Boot web application for managing users, services, availability, and ap
 
 ---
 
-### 🛠️ Services (Admin Only)
+###  Services (Admin Only)
 
 | Method | URL                            | Description                       |
 |--------|--------------------------------|-----------------------------------|
