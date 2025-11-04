@@ -13,6 +13,8 @@ import com.example.appointmentsystem.model.User;
 import com.example.appointmentsystem.repositories.ServiceRepository;
 import com.example.appointmentsystem.repositories.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +31,8 @@ public class ServiceController {
 
   // Get all services for a specific provider/admin
   @GetMapping("/getServices")
-  public String getServicesByProvider(@RequestParam("providerId") Long providerId, Model model) {
+  public String getServicesByProvider(HttpSession session, Model model) {
+    Long providerId = (Long) session.getAttribute("userId");
     List<ServiceModel> services = serviceRepository.findByServiceProvider_Id(providerId);
 
     model.addAttribute("services", services);// services to fetch it in html

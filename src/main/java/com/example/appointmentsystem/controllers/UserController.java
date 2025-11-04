@@ -18,6 +18,8 @@ import com.example.appointmentsystem.model.User;
 import com.example.appointmentsystem.repositories.RoleRepository;
 import com.example.appointmentsystem.repositories.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/users")
 public class UserController {
@@ -68,9 +70,11 @@ public class UserController {
 
 	// login
 	@PostMapping("/login")
-	public String login(@ModelAttribute User user, Model model) {
+	public String login(@ModelAttribute User user, Model model,HttpSession session) {
 
 		User foundUser = userRepository.findByEmail(user.getEmail());
+		// Set user ID in session
+		session.setAttribute("userId", foundUser.getId());
 
 		if (foundUser != null && passwordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
 			for (Role role : foundUser.getRoles()) {

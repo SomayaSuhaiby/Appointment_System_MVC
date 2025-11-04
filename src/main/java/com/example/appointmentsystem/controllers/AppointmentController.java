@@ -19,6 +19,8 @@ import com.example.appointmentsystem.repositories.UserRepository;
 import com.example.appointmentsystem.services.AppointmentService;
 import com.example.appointmentsystem.services.AvailabilityService;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.ui.Model;
 
 @Controller
@@ -84,8 +86,9 @@ public class AppointmentController {
 
    // Get all appointments for a specific  user
    @GetMapping("/getAppByUser")
-   public String getAppointmentForUser(@RequestParam Long id, Model model) {
-      List<Appointment> appointments = appointmentRepository.findByUser_Id(id);
+   public String getAppointmentForUser(HttpSession session, Model model) {
+      Long userId = (Long) session.getAttribute("userId");
+      List<Appointment> appointments = appointmentRepository.findByUser_Id(userId);
       if (appointments.isEmpty()) {
          model.addAttribute("error", "there is no appointment for this user");
 
@@ -103,7 +106,7 @@ public class AppointmentController {
 
       }
       model.addAttribute("appointments", appointments);
-      return "update_status";
+      return "admin-appointment";
    }
 
    @GetMapping("/update")
