@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Available Services</title>
+
+    <link rel="stylesheet" th:href="@{/style2.css}">
+
+    <style>
+        #previousLink {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Available Services</h2>
+
+    <!-- Show message when there are no services -->
+    <div th:if="${#lists.isEmpty(availablities)}">
+        <p>There are no available services right now.</p>
+    </div>
+
+    <!-- Show error message if exception happens -->
+    <div th:if="${error != null}">
+        <p th:text="${error}"></p>
+    </div>
+
+    <!-- Show services when the list is not empty -->
+    <div th:if="${not #lists.isEmpty(availablities)}">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Availability Id</th>
+                    <th>Service</th>
+                    <th>Service Provider</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="available : ${availablities}">
+
+                    <td th:text="${available.id}">
+                        Availability Id
+                    </td>
+
+                    <td th:text="${available.service != null ? available.service.name : 'No Service'}">
+                        Service
+                    </td>
+
+                    <td th:text="${available.serviceProvider != null ? available.serviceProvider.username : 'No Provider'}">
+                        Service Provider
+                    </td>
+
+                    <td th:text="${available.start_time}">
+                        Start Time
+                    </td>
+
+                    <td th:text="${available.end_time}">
+                        End Time
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <a th:href="@{/previous/backToAdminPage}" id="previousLink">
+        Previous
+    </a>
+
+</body>
+</html>

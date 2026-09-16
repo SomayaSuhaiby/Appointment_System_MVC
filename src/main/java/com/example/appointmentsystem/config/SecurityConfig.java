@@ -47,13 +47,13 @@ public class SecurityConfig {
             .requestMatchers("/booking", "/booking.html", "/templates/booking.html").permitAll() */
 
             // Admin-only access
-            .requestMatchers("/admin", "/createService").hasRole("admin")
+            .requestMatchers("/admin", "/createService").hasRole("ADMIN")
 
             // User-only access
-            .requestMatchers("/booking","/user").hasRole("user")
+            .requestMatchers("/booking","/user").hasRole("USER")
            // .requestMatchers("/**").permitAll()
 
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
             )
 
         .formLogin(form -> form.disable())

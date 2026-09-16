@@ -1,21 +1,16 @@
 package com.example.appointmentsystem.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.appointmentsystem.exceptions.AppointmentNotFoundException;
+import com.example.appointmentsystem.exceptions.ServiceNotFoundException;
 import com.example.appointmentsystem.model.Appointment;
-import com.example.appointmentsystem.model.ServiceModel;
-import com.example.appointmentsystem.model.User;
-import com.example.appointmentsystem.repositories.AppointmentRepository;
-import com.example.appointmentsystem.repositories.ServiceRepository;
-import com.example.appointmentsystem.repositories.UserRepository;
 import com.example.appointmentsystem.services.AppointmentService;
 import com.example.appointmentsystem.services.AvailabilityService;
 
@@ -27,108 +22,105 @@ import org.springframework.ui.Model;
 @RequestMapping("/user/appointment")
 public class AppointmentController {
 
-   @Autowired
-   private AppointmentRepository appointmentRepository;
+   private final AppointmentService appointmentService;
+   private final AvailabilityService availabilityService;
 
-   @Autowired
-   private UserRepository userRepository;
-   @Autowired
-   private ServiceRepository serviceRepository;
-   @Autowired
-   private AvailabilityService availabilityService;
-   @Autowired
-   private AppointmentService appointmentService;
-
-   @GetMapping("/booking")
-   public String showBookForm() {
-      return "user";
+   public AppointmentController(AppointmentService appointmentService, AvailabilityService availabilityService) {
+      this.appointmentService = appointmentService;
+      this.availabilityService = availabilityService;
    }
 
    // Booking a new appointment
-   @PostMapping("/bookingAppointment")
-   public String bookAppointment(@ModelAttribute Appointment appointment, Model model) {
+   @PostMapping("/book")
+   public String bookAppointment(@RequestParam Long availabilityId,
+         HttpSession session, Model model) {
 
-      // ............user id.............................
-      if (appointment.getUser() == null || appointment.getUser().getId() == null) {
-         model.addAttribute("error", "user Id is required");
-         return "booking";
+      Long userId = (Long) session.getAttribute("userId");
+      if (userId == null) {
+         return "redirect:/users/login";
       }
-      Optional<User> user = userRepository.findById(appointment.getUser().getId());
-      if (user.isEmpty()) {
-         model.addAttribute("error", "user Id is not found");
-         model.addAttribute("availablities", availabilityService.getAllAvailabilities());
-         return "booking";
-      }
-      appointment.setUser(user.get());
 
-      // ...........service id .................
-      if (appointment.getService() == null || appointment.getService().getId() == null) {
-         model.addAttribute("error", "Service Id is required");
+      try {
+         appointmentService.bookAppointment(availabilityId, userId);
+         model.addAttribute("success", "Your Appointment is booked successfuly");
          model.addAttribute("availablities", availabilityService.getAllAvailabilities());
 
-         return "booking";
-      }
-      Optional<ServiceModel> service = serviceRepository.findById(appointment.getService().getId());
-      if (service.isEmpty()) {
-         model.addAttribute("error", "Service Id is not found");
-
+      } catch (ServiceNotFoundException e) {
+         model.addAttribute("error", e.getMessage());
          model.addAttribute("availablities", availabilityService.getAllAvailabilities());
-         return "booking";
       }
-      appointment.setService(service.get());
-      // ************************************************************************** */
-      appointmentRepository.save(appointment);
-      model.addAttribute("success", "Your Appointment is booked successfuly");
-      model.addAttribute("availablities", availabilityService.getAllAvailabilities());
 
       return "booking";
    }
 
-   // Get all appointments for a specific  user
+   // Get all appointments for a specific user
    @GetMapping("/getAppByUser")
    public String getAppointmentForUser(HttpSession session, Model model) {
       Long userId = (Long) session.getAttribute("userId");
-      List<Appointment> appointments = appointmentRepository.findByUser_Id(userId);
-      if (appointments.isEmpty()) {
-         model.addAttribute("error", "there is no appointment for this user");
-
+      if (userId == null) {
+         return "redirect:/users/login";
       }
-      model.addAttribute("appointments", appointments);
+
+      try {
+         List<Appointment> appointments = appointmentService.getAppointmentByUserId(userId);
+         model.addAttribute("appointments", appointments);
+
+      } catch (AppointmentNotFoundException e) {
+         // model.addAttribute("error", e.getMessage());
+         model.addAttribute("appointments", List.of());
+      }
+
+      model.addAttribute("statuses",
+            Appointment.Status.values());
       return "user-appointment";
    }
 
    // Get all appointments
    @GetMapping("/getAppByAdmin")
    public String getAppointmentForAdmin(Model model) {
-      List<Appointment> appointments = appointmentService.getAllAppointment();
-      if (appointments.isEmpty()) {
-         model.addAttribute("error", "there is no appointment for this user");
+      try {
+         List<Appointment> appointments = appointmentService.getAllAppointment();
+         model.addAttribute("appointments", appointments);
 
+      } catch (AppointmentNotFoundException e) {
+         model.addAttribute("error", e.getMessage());
       }
-      model.addAttribute("appointments", appointments);
       return "admin-appointment";
    }
 
-   @GetMapping("/update")
-   public String showUpdate() {
-      return "update_status";
-   }
+   // update appointment status
+   @PostMapping("/updateStatus")
+   public String updateAppointmentStatus(@RequestParam Long id, @RequestParam String status,
+         HttpSession session, Model model) {
+      Long userId = (Long) session.getAttribute("userId");
 
-   // update appointment status(confirmed,cancelled)
-   @PostMapping("/update")
-   public String updateAppointmentStatus(@RequestParam Long id, @RequestParam String status, Model model) {
-      Appointment appointment = appointmentRepository.findById(id).orElse(null);
-      if (appointment != null) {
-         appointment.setStatus(Appointment.Status.valueOf(status));
-         appointmentRepository.save(appointment);
-         model.addAttribute("success", "The status has been updated");
-         model.addAttribute("appointments", appointmentService.getAllAppointment());// for not return without the
-                                                                                    // Appointments that have already
-                                                                                    // showed
-         return "update_status";
+      if (userId == null) {
+         return "redirect:/users/login";
       }
-      model.addAttribute("error", "This appointment is not found");
-      model.addAttribute("appointments", appointmentService.getAllAppointment());
-      return "update_status";
+
+      try {
+         Appointment.Status appointmenStatus = Appointment.Status.valueOf(status);
+         appointmentService.updateAppointmentStatus(id, appointmenStatus);
+         model.addAttribute("success", "The status has been updated");
+
+      } catch (AppointmentNotFoundException e) {
+         model.addAttribute("error", e.getMessage());
+
+      } catch (IllegalArgumentException e) {
+         model.addAttribute("error", "Invalid appointment status");
+      }
+
+      try {
+         model.addAttribute("appointments",
+               appointmentService.getAppointmentByUserId(userId));// for not return without the Appointments that have
+                                                                  // already showed
+
+      } catch (AppointmentNotFoundException e) {
+         model.addAttribute("appointments", List.of());
+      }
+      model.addAttribute("statuses",
+            Appointment.Status.values());
+
+      return "user-appointment";
    }
 }

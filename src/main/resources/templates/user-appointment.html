@@ -1,28 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>User appointment</title>
-    <link rel="stylesheet" href="/style2.css">
-    <style>
-     #previousLink {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color:#007BFF; 
-    color: black;
-    text-decoration: none;
-    border-radius: 5px;
-    position: absolute;
-    left: 10px; 
-    bottom: 10px;
-}
-    </style>
-  </head>
-  <body>
-     
-  <h2>Available Services</h2>
+
+<head>
+  <meta charset="utf-8">
+  <title>My Appointment</title>
+  <link rel="stylesheet" href="/style2.css">
+  <style>
+      #error {
+      color: red;
+      margin: 5px;
+      
+    }
+
+    #success {
+      color: #28a745;
+        margin: 5px;
+    }
+    #previousLink {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>My Appointments</h2>
+  <div th:if="${success}" th:text="${success}" id="success"></div>
+
+<div th:if="${error}" th:text="${error}" id="error"></div>
   <div th:if="${#lists.isEmpty(appointments)}">
-    <p>There are no available appointments right now</p>
+    <p>There are no appointments right now</p>
   </div>
   <div th:if="${!#lists.isEmpty(appointments)}">
     <table>
@@ -41,15 +56,36 @@
           <td th:text="${appointment.user.id}">User ID</td>
           <td th:text="${appointment.service.name}"> Service Name</td>
           <td th:text="${appointment.appointment_time}">Appointment Time</td>
-          <td th:text="${appointment.status}">Appointment StatuA</td>
-          
+         
+<td>
+    <form th:action="@{/user/appointment/updateStatus}" method="post">
+
+        <input type="hidden"
+               name="id"
+               th:value="${appointment.id}">
+
+        <select name="status">
+
+            <option th:each="status : ${statuses}"
+                    th:value="${status}"
+                    th:text="${status}"
+                    th:selected="${status == appointment.status}">
+            </option>
+
+        </select>
+
+        <button type="submit">Update</button>
+
+    </form>
+</td>
         </tr>
 
       </tbody>
     </table>
   </div>
   <br>
- <a th:href="@{/previous/backToUserPage}" id="previousLink"> Previous</a>
+  <a th:href="@{/previous/backToUserPage}" id="previousLink"> Previous</a>
 
-  </body>
+</body>
+
 </html>

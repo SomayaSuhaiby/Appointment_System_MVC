@@ -1,19 +1,21 @@
 package com.example.appointmentsystem.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.appointmentsystem.DTOs.ServiceDTO;
+import com.example.appointmentsystem.exceptions.ServiceNotFoundException;
+import com.example.appointmentsystem.exceptions.UserNotFoundException;
 import com.example.appointmentsystem.model.ServiceModel;
-import com.example.appointmentsystem.model.User;
-import com.example.appointmentsystem.repositories.ServiceRepository;
-import com.example.appointmentsystem.repositories.UserRepository;
+import com.example.appointmentsystem.services.ServiceModelService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,17 +25,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/services")
 public class ServiceController {
 
-  @Autowired
-  private ServiceRepository serviceRepository;
+  private final ServiceModelService serviceModelService;
 
-  @Autowired
-  private UserRepository userRepository;
+  public ServiceController(ServiceModelService serviceModelService) {
+    this.serviceModelService = serviceModelService;
+  }
 
   // Get all services for a specific provider/admin
   @GetMapping("/getServices")
-  public String getServicesByProvider(HttpSession session, Model model) {
+  public String getServicesByProviderId(HttpSession session, Model model) {
+
     Long providerId = (Long) session.getAttribute("userId");
-    List<ServiceModel> services = serviceRepository.findByServiceProvider_Id(providerId);
+    List<ServiceModel> services = serviceModelService.getServicesByProviderId(providerId);
 
     model.addAttribute("services", services);// services to fetch it in html
     return "services"; // services.html
@@ -48,22 +51,22 @@ public class ServiceController {
 
   // create a new service
   @PostMapping("/create")
-  public String createService(@ModelAttribute ServiceModel service, Model model) {
-
-    if (service.getServiceProvider() == null || service.getServiceProvider().getId() == null) {
-
-      model.addAttribute("error", "service provider Id is required");
+  public String createService(@Valid @ModelAttribute ServiceDTO dto,
+      BindingResult result, HttpSession session, Model model) {
+    if (result.hasErrors()) {
       return "createService";// createService.html
     }
-    Optional<User> serviceProvider = userRepository.findById(service.getServiceProvider().getId());
-    if (serviceProvider.isEmpty()) {
-      model.addAttribute("error", "service provider is not found");
-      return "createService";// createService.html
+    Long providerId = (Long) session.getAttribute("userId");
+    if (providerId == null) {
+      return "redirect:/users/login";
     }
+    try {
+      serviceModelService.createService(dto, providerId);
+      model.addAttribute("success", "Service created successfully");
 
-    service.setServiceProvider(serviceProvider.get());
-    serviceRepository.save(service);
-    model.addAttribute("success", "Service created successfully");
+    } catch (UserNotFoundException e) {
+      model.addAttribute("error", e.getMessage());
+    }
     return "createService";// createService.html
   }
 
@@ -75,16 +78,16 @@ public class ServiceController {
   // Delete a specific service by ID
   @PostMapping("/delete")
   public String deleteSevice(@RequestParam("serviceId") Long serviceId, Model model) {
-    Optional<ServiceModel> service = serviceRepository.findById(serviceId);
-    if (!service.isPresent()) {
-      model.addAttribute("error", "This Service is not found");
-      return "admin";
+
+    try {
+      serviceModelService.deleteSevice(serviceId);
+      model.addAttribute("success", "This service has been deleted successfuly");
+
+    } catch (ServiceNotFoundException e) {
+      model.addAttribute("error", e.getMessage());
 
     }
-
-    serviceRepository.delete(service.get());
-    model.addAttribute("success", "This service has been deleted successfuly");
-    return "admin";
+    return "services";
   }
 
 }

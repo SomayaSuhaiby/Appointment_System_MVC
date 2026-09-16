@@ -30,10 +30,11 @@ public class Appointment {
     private LocalDateTime appointment_time;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.pending;
+    private Status status = Status.PENDING;
 
     public enum Status {
-        pending, confirmed, cancelled;
+        PENDING, CONFIRMED, CANCELLED;
+       
     }
 
     // getter and setter

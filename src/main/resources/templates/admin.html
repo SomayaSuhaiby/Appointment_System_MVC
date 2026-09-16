@@ -46,15 +46,6 @@
     <button type="submit">Get all Appointments</button>
    </form>
 
-   <!-- Delete a specific service -->
-  <form th:action="@{/services/delete}" method="post">
-    <input type="text" name="serviceId" placeholder=" Enter Service Id" required>
-    <button type="submit">Delete a Service</button>
-      <p th:if="${error}" th:text="${error}" id="error"></p>
-    <p th:if="${success}" th:text="${success}" id="success"></p>
-
-  </form>
-
    <!-- back to login page -->
  <a th:href="@{/previous/backToLoginPage}" id="previousLink">Previous</a>
 </body>

@@ -25,13 +25,12 @@
 <body>
   <h1>User Page</h1>
   <form action="/availability/list" method="get">
-    <h2>For booking an Appointment,See Available services</h2>
+    <h2>For booking an Appointment,Get Available services</h2>
     <button type="submit"> Available Services</button>
   </form><br>
 
   <form action="/user/appointment/getAppByUser">
-    <h2>Display Your Appointment</h2>
-    <button type="submit">Display</button>
+    <button type="submit">My Appointment</button>
   </form>
 
   <div th:if="${error}" th:text="${error}"> </div><br>

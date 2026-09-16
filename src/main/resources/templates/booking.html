@@ -1,72 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>title</title>
-    <link rel="stylesheet" href="/style2.css">
-    <style>
-     
-  #previousLink {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color:#007BFF; 
-    color: black;
-    text-decoration: none;
-    border-radius: 5px;
-    position: absolute;
-    left: 10px; 
-    bottom: 10px;
-}
-    </style>
-  </head>
-  <body>
-      <h2>Available Services</h2>
-  <div th:if="${#lists.isEmpty(availablities)}">
-    <p>There are no available services right now</p>
-  </div>
-  <div th:if="${!#lists.isEmpty(availablities)}">
-    <table>
-      <thead>
-        <tr>
-          <th>Service Id</th>
-          <th>Service </th>
-          <th> Service Provider</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="available : ${availablities}">
-          <td th:text="${available.service.id}">Service Id</td>
-          <td th:text="${available.service.name}">Service </td>
-          <td th:text="${available.serviceProvider.username}"> Service Provider</td>
-          <td th:text="${available.start_time}">Start Time</td>
-          <td th:text="${available.end_time}">End Time</td>
-        </tr>
+<<!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-      </tbody>
-    </table>
-  </div>
+    <head>
+        <meta charset="UTF-8">
+        <title>Available Services</title>
+
+        <link rel="stylesheet" th:href="@{/style2.css}">
+
+        <style>
+            #previousLink {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007BFF;
+                color: black;
+                text-decoration: none;
+                border-radius: 5px;
+                position: absolute;
+                left: 10px;
+                bottom: 10px;
+            }
+
+            #previousLink:hover {
+                background-color: #0056b3;
+            }
+
+            .bookButton {
+                padding: 8px 15px;
+                background-color: #28a745;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+
+            .bookButton:hover {
+                background-color: #218838;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                padding: 12px;
+                border: 1px solid #ccc;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h2>Available Services</h2>
+
+        <!-- No available services -->
+        <div th:if="${#lists.isEmpty(availablities)}">
+
+            <p>There are no available services right now.</p>
+
+        </div>
 
 
-  <h2>Book Appointment</h2>
-  <form action="/user/appointment/bookingAppointment" method="post">
-    <input type="text" name="user.id" placeholder="Your Id" required>
-    <input type="text" name="service.id" placeholder="Service Id" required>
-    <input type="datetime-local" name="appointment_time" placeholder="Appointment Time" required>
-    <select name="status" required> 
-      <option value=" pending">Pending</option>
-      <option value=" confirmed">Confirmed</option>
-      <option value=" cancelled">Cancelled</option>
-      
-    </select>
-    <button type="submit">Book</button>
-  </form>
+        <!-- Available services -->
+        <div th:if="${!#lists.isEmpty(availablities)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service ID</th>
+                        <th>Service</th>
+                        <th>Service Provider</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="available : ${availablities}">
+                        <!-- Service ID -->
+                        <td th:text="${available.service.id}">
+                            Service ID
+                        </td>
+                        <!-- Service Name -->
+                        <td th:text="${available.service != null
+                        ? available.service.name
+                        : 'No Service'}">
+                            Service
+                        </td>
+                        <!-- Service Provider -->
+                        <td th:text="${available.serviceProvider != null
+                        ? available.serviceProvider.username
+                        : 'No Provider'}">
+                            Service Provider
+                        </td>
+                        <!-- Start Time -->
+                        <td th:text="${available.start_time}">
+                            Start Time
+                        </td>
+                        <!-- End Time -->
+                        <td th:text="${available.end_time}">
+                            End Time
+                        </td>
+                        <!-- Book Button -->
+                        <td>
 
-  <div th:if="${error}" th:text="${error}" id="error"> </div>
-  <div th:if="${success}" th:text="${success}" id="success"> </div>
+                            <form th:action="@{/user/appointment/book}" method="post">
+                                <input type="hidden" name="availabilityId" th:value="${available.id}">
+                                <button type="submit" class="bookButton"> Book </button>
+                            </form>
 
-<a th:href="@{/previous/backToUserPage}" id="previousLink">Previous</a>
-  
-  </body>
-</html>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Error message -->
+        <div th:if="${error}" th:text="${error}" id="error">
+        </div>
+
+
+        <!-- Success message -->
+        <div th:if="${success}" th:text="${success}" id="success">
+        </div>
+
+
+        <!-- Previous button -->
+        <a th:href="@{/previous/backToUserPage}" id="previousLink">
+            Previous
+        </a>
+
+    </body>
+
+    </html>

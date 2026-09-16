@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8">
-    <title>Provider Services</title>
+    <title>Services</title>
     <link rel="stylesheet" href="/style2.css">
     <style>
   
@@ -28,6 +28,7 @@
          <table >
       <thead>
         <tr>
+          <th>Id</th>
           <th>Name</th>
           <th>Description</th>
           <th>Price</th>
@@ -35,6 +36,7 @@
       </thead>
       <tbody>
         <tr th:each="service : ${services}">
+          <td th:text="${service.id}">Id</td>
           <td th:text="${service.name}">Name</td>
           <td th:text="${service.description}">Description</td>
           <td th:text="${service.price}">0.00</td>
@@ -44,6 +46,16 @@
     </table>
     
       </div>
+
+     <!-- Delete a specific service -->
+       <h2>Delete a service </h2>
+  <form th:action="@{/services/delete}" method="post">
+    <input type="text" name="serviceId" placeholder=" Enter Service Id" required>
+    <button type="submit">Delete Service</button>
+      <p th:if="${error}" th:text="${error}" id="error"></p>
+    <p th:if="${success}" th:text="${success}" id="success"></p>
+
+  </form>
   
       <a th:href="@{/previous/backToAdminPage}" id="previousLink">Previous</a>
   </body>
